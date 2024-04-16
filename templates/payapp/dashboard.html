@@ -1,0 +1,31 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+    PayApp Dashboard
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <section class="col-md-3 sidebar-section">
+                <div>
+                    <p class="mb-5 send-request-text">Balance: {{ user.balance.balance }} {{ user.balance.currency }}</p>
+                </div>
+                <h1 class="card-title sidebar-header">Overview</h1>
+                <a class="sidebar-item" href="{% url 'fund_request_list' %}">View Fund
+                    Requests</a>
+                <a class="sidebar-item"
+                   href="{% url 'notifications:notification_list' %}">List of Notifications</a>
+                <a class="sidebar-item" href="#">Transactions</a>
+                <a class="sidebar-item" href="{% url 'generate_plot' %}">Reports</a>
+            </section>
+            <section class="col-md-9 p-0">
+                {# Include the plot_template without the navbar here #}
+                {% block navbar %}{% endblock %}
+                {{ plot_html | safe }}
+            </section>
+        </div>
+
+    </div>
+    </div>
+{% endblock %}

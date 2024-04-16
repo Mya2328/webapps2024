@@ -1,0 +1,236 @@
+table, th, td {
+    padding: 5px;
+}
+
+.navbar-toggler-icon {
+    color: #fff;
+    font-weight: bold;
+}
+
+:root {
+    --bs-primary-color: #0c2340;
+}
+
+.navbar {
+    color: #1e4bc6;
+    padding: 0.2rem 0;
+}
+
+.navbar-nav li a {
+
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-right: 0.65rem;
+}
+
+.table-grey {
+    background-color: #d3d3d3;
+    color: #333;
+    /* Add any other desired styles here */
+}
+
+.unread {
+    font-weight: bold;
+}
+
+.my-content {
+    margin-bottom: 50px; /* change the value as needed */
+}
+
+.sidebar-header {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.setting-icon {
+    padding: 0 !important;
+    margin-top: 4px;
+}
+
+.sidebar-section {
+    background-color: #7ea1ffa8;
+    border-radius: 0.25rem;
+    color: #1e4bc6;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.sidebar-item {
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.page-section {
+    color: white;
+    background-color: #7ea1ff;
+    display: flex;
+    min-height: 100vh;
+}
+
+.login-page-section {
+    flex-direction: column;
+    height: 100vh;
+}
+
+.register-page-section {
+    flex-direction: column-reverse;
+}
+
+.reset-password-page-section {
+    align-items: center;
+    background-size: cover;
+    justify-content: center;
+}
+
+.header {
+    max-width: 18.5rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.login-form-section {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3.5rem 1.5rem;
+    width: 100%;
+}
+
+.register-form-section {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3.5rem 1.5rem;
+    width: 100%;
+}
+
+.reset-password-form {
+    background-color: #7ea1ffa8;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.form {
+    max-width: 18.5rem;
+    width: 100%;
+}
+
+.login-image-section {
+    width: 100%;
+}
+
+.register-image-section {
+    width: 40%;
+}
+
+.logo {
+    width: 8rem;
+    margin-bottom: 2rem;
+}
+
+.background-image {
+    width: 60%;
+    height: 60%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.link {
+    color: #fffab7;
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 0.5rem;
+}
+
+.link:hover {
+    color: #ffebb2;
+}
+
+@media screen and (min-width: 720px) {
+    .page-section {
+        flex-direction: row;
+    }
+
+    .login-form-section {
+        width: 45%;
+        padding: 3rem 1.5rem;
+    }
+
+    .register-form-section {
+        width: 45%;
+        padding: 3rem 1.5rem;
+    }
+
+    .login-image-section {
+        width: 55%
+    }
+
+    .register-image-section {
+        width:100%;
+    }
+
+    .send-request-body {
+        flex-direction: row;
+    }
+}
+
+@media screen and (max-width: 720px) {
+    .navbar {
+        padding: 0.2rem 1rem;
+    }
+
+    .send-request-body {
+        flex-direction: column;
+    }
+}
+
+.send-request-section {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+.send-request-text {
+    color: #1e4bc6;
+    font-size: 1.35rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem !important;
+}
+
+.send-request-body {
+    color: #1e4bc6;
+    display: flex;
+}
+
+.send-request-button {
+    background-color: #7ea1ffa8;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    padding: 1.5rem;
+    min-width: 12rem;
+    margin: 0.5rem;
+}
+
+.send-request-button-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem
+}
+
+.send-request-button-text {
+    margin-bottom: 0;
+}
+
