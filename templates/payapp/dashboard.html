@@ -5,12 +5,13 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
+<div>
+    <p class="mb-5 send-request-text">Account Balance: {{ user.balance.balance }} {{ user.balance.currency }}</p>
+</div>
+<div class="container-fluid">
         <div class="row">
             <section class="col-md-3 sidebar-section">
-                <div>
-                    <p class="mb-5 send-request-text">Account Balance: {{ user.balance.balance }} {{ user.balance.currency }}</p>
-                </div>
+
                 <h1 class="card-title sidebar-header">Overview</h1>
                 <a class="sidebar-item" href="{% url 'fund_request_list' %}">View Fund
                     Requests</a>
