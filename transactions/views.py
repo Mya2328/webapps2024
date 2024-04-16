@@ -23,7 +23,7 @@ from .forms import FundRequestForm
 # @transaction.atomic
 @login_required
 @csrf_protect
-def funds_transfer(request):
+def transfer(request):
     src_wallet = None  # Initialize the variable to None
     if request.method == 'POST':
         form = CashTransferForm(request.POST, initial={'sender': request.user.username})  # pass the sender value as initial
@@ -45,12 +45,12 @@ def funds_transfer(request):
 
             if src_username == dst_username:
                 messages.error(request, "You can only transfer funds to other account.")
-                return redirect("funds_transfer")
+                return redirect("transfer")
 
             # check if the sender has enough funds
             if src_wallet.balance < amount_to_transfer:
                 messages.error(request, "Insufficient funds.")
-                return redirect("funds_transfer")
+                return redirect("transfer")
 
             # Calculate exchange rate and transfer amount in destination currency if wallets have different currencies
             if src_wallet.currency != dst_wallet.currency:
@@ -122,7 +122,7 @@ def funds_transfer(request):
     # Set the sender field of the form to the username of the logged-in user
     else:
         form = CashTransferForm(initial={'sender': request.user.username})
-    return render(request, "transactions/funds_transfer.html", {"form": form})
+    return render(request, "transactions/transfer.html", {"form": form})
 
 @login_required
 def transaction_history(request):
@@ -156,7 +156,7 @@ def send_and_request(request):
     return render(request, "payapp/send&request.html")
 
 @login_required
-def fund_request(request):
+def requestmoney(request):
     if request.method == 'POST':
         form = FundRequestForm(request.POST, request=request)
         if form.is_valid():

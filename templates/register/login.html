@@ -3,39 +3,49 @@
 {% load static %}
 
 {% block title %}
-    Login to an Account
+Login to an Account
 {% endblock %}
 
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="card mb-3" style="max-width: 100%;">
-        <div class="row g-0">
-            <div class="col-md-4">
-                <img
-                    alt="login-image"
-                    class="background-image"
-                    src="{% static 'login_image.webp' %}"
-                />
-            </div>
-    <div class="col-md-8">
-        <div class="card-body">
-            <div class="form">
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
                 <h1 class="header">Login</h1>
-                    <form method="post" class="form-group">
-                        {% csrf_token %}
-                        {{ login_user|crispy }}
-                        <button class="btn btn-primary w-100 mt-1" type="submit">Login</button>
-                    </form>
+                <form method="post" class="form-group">
+                    {% csrf_token %}
+                    {{ login_user|crispy }}
+                    <button class="btn btn-primary w-100 mt-1" type="submit">Login</button>
+                </form>
 
                 <div class="card-body">
                     <a class="link-opacity-100 link mb-2" href="{% url 'password_reset' %}">Forgot password?</a>
-                    <div style="display: flex; justify-content: center;">
-                        <p class="link" style="color: white;">Don't have an account?</p>
-                        <a class="link-opacity-100 link" href="{% url 'register' %}">Register</a>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+        <div class="col-md-6">
+        <div class="card mb-3">
+            <img
+                    alt="login-image"
+                    class="background-image card-img-top"
+                    src="{% static 'login_image.webp' %}"
+            />
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h1 class="header">Register</h1>
+                <div style="display: flex; justify-content: center;">
+                    <p class="link" style="color: white;">Don't have an account?</p>
+                    <a class="link-opacity-100 link" href="{% url 'register' %}">Register</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
