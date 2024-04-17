@@ -83,13 +83,13 @@ def transfer(request):
                         transaction_type=transaction_type,
                     )
 
-                    # # Create and save a new WalletTransaction object for the recipient
-                    # dst_transaction = WalletTransaction.objects.create(
-                    #     sender=src_username,
-                    #     recipient=dst_username,
-                    #     amount=amount_to_transfer_recipient_currency,
-                    #     transaction_type=recipient_transaction_type,
-                    # )
+                    # Create and save a new WalletTransaction object for the recipient
+                    dst_transaction = WalletTransaction.objects.create(
+                        sender=src_username,
+                        recipient=dst_username,
+                        amount=amount_to_transfer_recipient_currency,
+                        transaction_type=recipient_transaction_type,
+                    )
 
                 # Use the on_commit() function to inform users that all points have been transferred successfully
                 @on_commit
@@ -173,7 +173,7 @@ def requestmoney(request):
         # print(fund_requester) # add this line to check the value of fund_requester
         form = FundRequestForm(initial={'fund_requester': fund_requester})
         form.fields['fund_sender'].queryset = User.objects.exclude(pk=fund_requester.pk)
-    return render(request, 'transactions/request_fund.html', {'form': form})
+    return render(request, 'transactions/requestmoney.html', {'form': form})
 
 
 def fund_request_list(request):

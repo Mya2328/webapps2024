@@ -55,7 +55,7 @@ def generate_plot(request):
     # receipt_transactions = WalletTransaction.objects.filter(transaction_type='CR', sender=current_user).count()
     fund_transfer_transactions = WalletTransaction.objects.filter(transaction_type='DR', sender=current_user).count()
 
-    # Create a bar chart
+    # Create a summary chart
     trace = go.Bar(
         x=['Pending Transactions', 'Fund Transfer Transactions'],
         y=[pending_transactions, fund_transfer_transactions],

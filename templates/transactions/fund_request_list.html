@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>Pending Fund Requests</h1>
-    <table>
+    <table class="table table-bordered table-striped table-hover table-grey">
         <thead>
         <tr>
             <th>Date</th>
@@ -26,9 +26,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="action" value="approve">
                         <button class="btn btn-primary w-7 mt-1" type= "submit">Approve</button>
-                    </form>
-                    <form method="POST" action="{% url 'fund_request_action' request.pk %}">
-                        {% csrf_token %}
+
                         <input type="hidden" name="action" value="decline">
                         <button class="btn btn-primary w-7 mt-1" type= "submit">Decline</button>
                     </form>
