@@ -233,4 +233,14 @@ table, th, td {
 .send-request-button-text {
     margin-bottom: 0;
 }
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 4px 6px;
+    font-size: 12px;
+}
 

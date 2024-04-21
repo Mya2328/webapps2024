@@ -8,7 +8,7 @@ from . import views
 urlpatterns = [
     path('fundstransfer/', views.transfer, name='transfer'),
     path('requestmoney/', views.requestmoney, name='request-money'),
-    path('transactionhistory/', views.transaction_history, name='transaction_history'),
+    path('', views.transactionlog, name='transactionlog'),
     path('fund_request_list/', views.fund_request_list, name='fund_request_list'),
     path('request/<int:pk>/action/', views.fund_request_action, name='fund_request_action'),
     # path('approve_funds/<int:transaction_id>/', views.approve_funds, name='approve_funds'),

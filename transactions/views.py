@@ -125,7 +125,7 @@ def transfer(request):
     return render(request, "transactions/transfer.html", {"form": form})
 
 @login_required
-def transaction_history(request):
+def transactionlog(request):
     # Fetch all transactions for the source wallet
     src_transactions = list(WalletTransaction.objects.filter(sender=request.user.username, recipient__isnull=False).order_by("-date_created"))
 
@@ -150,7 +150,7 @@ def transaction_history(request):
         'transactions': transactions,
         'rate': rate
     }
-    return render(request, 'transactions/transaction_history.html', context)
+    return render(request, 'transactions/transactionlog.html', context)
 
 def send_and_request(request):
     return render(request, "payapp/send&request.html")
