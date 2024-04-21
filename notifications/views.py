@@ -5,14 +5,14 @@ from django.shortcuts import redirect
 
 from .models import Notification
 
-@login_required
+@login_required(login_url='login')
 def notification_list(request):
     notifications = list(Notification.objects.filter(recipient=request.user).order_by('-timestamp'))
     context = {'notifications': notifications}
     return render(request, 'notifications/notification_list.html', context)
 
 
-@login_required
+@login_required(login_url='login')
 def notification_mark_read(request, notification_id):
     notification = get_object_or_404(Notification, pk=notification_id)
     notification.is_read = True
@@ -29,13 +29,13 @@ def notification_mark_read(request, notification_id):
 #     context = {'notifications': notifications}
 #     return render(request, 'notifications/notification_list.html', context)
 
-@login_required
+@login_required(login_url='login')
 def notification_delete(request, notification_id):
     notification = get_object_or_404(Notification, pk=notification_id)
     notification.delete()
     return redirect('notifications:notification_list')
 
-@login_required
+@login_required(login_url='login')
 def notification_delete_multiple(request):
     if request.method == 'POST':
         notification_ids = request.POST.getlist('selected_notifications')

@@ -25,10 +25,12 @@
                     <form method="POST" action="{% url 'fund_request_action' request.pk %}">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="approve">
-                        <button class="btn btn-primary w-7 mt-1" type= "submit">Approve</button>
-
+                        <button type="submit">Approve</button>
+                    </form>
+                    <form method="POST" action="{% url 'fund_request_action' request.pk %}">
+                        {% csrf_token %}
                         <input type="hidden" name="action" value="decline">
-                        <button class="btn btn-primary w-7 mt-1" type= "submit">Decline</button>
+                        <button type="submit">Decline</button>
                     </form>
                 </td>
             </tr>

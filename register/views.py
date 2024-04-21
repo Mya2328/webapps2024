@@ -97,14 +97,14 @@ def login_user(request):
                     # Set a variable to control the navbar display
                     display_navbar = True
 
-                    return redirect("/summary")
+                    return redirect("dashboard")
             else:
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
-    return render(request, "register/login.html", {"login_user": form, "facebook_app_id": "your-facebook-app-id"})
+    return render(request, "register/login.html", {"login_user": form})
 
 
 def logout_user(request):
@@ -133,19 +133,3 @@ def password_reset_confirm(request):
     return redirect("login")
 
 
-@psa('social:complete')
-def facebook_callback(request):
-    # This view will handle the Facebook authentication callback
-
-    # Retrieve the user's information from the access token
-    user = request.backend.do_auth(request.GET.get('access_token'))
-
-    # If the user was authenticated successfully, log them in and redirect to the dashboard
-    if user:
-        login(request, user)
-        messages.success(request, "You have been logged in with Facebook.")
-        return redirect('dashboard')
-
-    # If the authentication failed, display an error message
-    messages.error(request, "Failed to authenticate with Facebook.")
-    return redirect('login')

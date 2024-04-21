@@ -37,7 +37,7 @@
 <!--Navbar, bg-light-->
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #7ea1ffa8;">
     <div class="container">
-        <a href="{% url 'home' %}" class="navbar-brand mb-0 mr-3 h1">
+        <a href="#" class="navbar-brand mb-0 mr-3 h1">
             <img alt="logo" src="{% static 'logo.png' %}" width="50" height="50"/>
         </a>
         <!--class="d-inline-block align-top" Add this class after the <img tag. This could be used to align the image to the top-->
@@ -57,25 +57,23 @@
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a href="/summary">Dashboard</a>
+                        <a href="{% url 'dashboard' %}">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/send&request">Send & Request</a>
+                        <a href="{% url 'send&request' %}">Send & Request</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/transactionhistory">Activity</a>
+                        <a href="{% url 'transactionlog' %}">Activity</a>
                     </li>
-                    </ul>
+            </ul>
+            <ul>
 
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a href="/notifications/notification_list/" class="nav-link setting-icon position-relative"><i class="fa-solid fa-bell"></i><span class="notification-badge">3</span></a></li>
-                        <li class="nav-item">
-                            <a href="/contact" class="nav-link setting-icon"><i class="fa-solid fa-gear"></i></a>
-                        </li>
+                        <li class="nav-item"><a href="{% url 'notifications:notification_list' %}" class="nav-link setting-icon position-relative"><i class="fa-solid fa-bell"></i><span class="notification-badge">3</span></a></li>
 
                         <li class="nav-item"><a>Welcome, {{ user.username }}</a></li>
                         <li class="nav-item">
-                            <a href="/logout">Logout</a>
+                            <a href="{% url 'logout' %}">Logout</a>
                         </li>
                     </ul>
 

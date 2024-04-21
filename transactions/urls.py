@@ -6,7 +6,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('fundstransfer/', views.transfer, name='transfer'),
+    path('transfer/', views.transfer, name='transfer'),
     path('requestmoney/', views.requestmoney, name='request-money'),
     path('', views.transactionlog, name='transactionlog'),
     path('fund_request_list/', views.fund_request_list, name='fund_request_list'),

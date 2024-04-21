@@ -21,7 +21,7 @@ from .forms import FundRequestForm
 
 # Create your views here.
 # @transaction.atomic
-@login_required
+@login_required(login_url='login')
 @csrf_protect
 def transfer(request):
     src_wallet = None  # Initialize the variable to None
@@ -41,7 +41,7 @@ def transfer(request):
 
             if not request.user.is_superuser and request.user.id != src_wallet.user.id:
                 messages.error(request, "You can only transfer funds from your own account.")
-                return redirect("funds_transfer")
+                return redirect("transfer")
 
             if src_username == dst_username:
                 messages.error(request, "You can only transfer funds to other account.")
@@ -124,7 +124,7 @@ def transfer(request):
         form = CashTransferForm(initial={'sender': request.user.username})
     return render(request, "transactions/transfer.html", {"form": form})
 
-@login_required
+@login_required(login_url='login')
 def transactionlog(request):
     # Fetch all transactions for the source wallet
     src_transactions = list(WalletTransaction.objects.filter(sender=request.user.username, recipient__isnull=False).order_by("-date_created"))
@@ -155,7 +155,7 @@ def transactionlog(request):
 def send_and_request(request):
     return render(request, "payapp/send&request.html")
 
-@login_required
+@login_required(login_url='login')
 def requestmoney(request):
     if request.method == 'POST':
         form = FundRequestForm(request.POST, request=request)

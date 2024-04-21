@@ -19,12 +19,12 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 
 urlpatterns = [
-
-    path('', include('register.urls')),
-    path('', include('transactions.urls')),
-    path('', include('payapp.urls')),
-    path('', include('converter.urls')),
-    path('notifications/', include(('notifications.urls', 'notifications'), namespace='notifications')),
+    path('', RedirectView.as_view(url='/webapps2024/payapp/', permanent=True)),
+    path('webapps2024/register/', include('register.urls')),
+    path('webapps2024/transactions/', include('transactions.urls')),
+    path('webapps2024/payapp/', include('payapp.urls')),
+    path('webapps2024/converter/', include('converter.urls')),
+    path('webapps2024/notifications/', include(('notifications.urls', 'notifications'), namespace='notifications')),
     # path('', include('notifications.urls')),
     path('admin/', admin.site.urls),
     path('favicon.ico', RedirectView.as_view(url='/static/admin/favicon.ico', permanent=True)),
