@@ -42,7 +42,7 @@ class WalletTransaction(models.Model):
     recipient = models.CharField(max_length=50, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transaction_type = models.CharField(max_length=2, choices=TRANSACTION_TYPE_CHOICES, default='CR')
-    date_created = models.DateTimeField(default=timezone.now)
+    date_created = models.DateTimeField(auto_now_add=False)
 
     def __str__(self):
         return f"{self.sender} - {self.recipient}: {self.amount}"
@@ -60,8 +60,8 @@ class FundRequest(models.Model):
     description = models.CharField(max_length=500)
     currency = models.CharField(max_length=3, default='GBP')
     approved = models.BooleanField(default=False)
-    created_at = models.DateTimeField(default=timezone.now)
-    approved_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=False)
+    approved_at = models.DateTimeField(auto_now_add=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
 
     def __str__(self):

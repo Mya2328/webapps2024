@@ -14,7 +14,6 @@ from decimal import Decimal
 from django.db.models import Q
 
 from .models import User, Wallet, WalletTransaction
-from django.utils import timezone
 from .models import FundRequest
 from .forms import FundRequestForm
 
