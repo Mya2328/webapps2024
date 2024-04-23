@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.contrib.auth.forms import AuthenticationForm
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from register.forms import RegisterForm
 from django.contrib.auth import login, authenticate, logout
@@ -12,6 +15,14 @@ from django.urls import reverse
 from social_django.utils import psa
 from transactions.models import WalletTransaction, FundRequest
 import plotly.graph_objs as go
+import thriftpy
+from thriftpy.rpc import make_client
+from thriftpy.thrift import TException
+
+
+timestamp_thrift = thriftpy.load(
+    'timestamp.thrift', module_name='timestamp_thrift')
+Timestamp = timestamp_thrift.TimestampService
 
 
 @csrf_protect
@@ -23,6 +34,8 @@ def register_user(request):
 
             # Check if a wallet already exists for this user
             try:
+                client = make_client(Timestamp, '127.0.0.1', 9090)
+                timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
                 wallet = Wallet.objects.get(user=user)
                 # Update the wallet's currency and balance if it already exists
                 wallet.currency = form.cleaned_data.get("currency")
@@ -42,7 +55,12 @@ def register_user(request):
                     initial_balance = Wallet.currency_converter(Decimal("1000.00"), "GBP", "USD")
                 else:
                     initial_balance = Wallet.currency_converter(Decimal("1000.00"), "GBP", "EUR")
-                Wallet.objects.create(user=user, balance=initial_balance, currency=currency)
+                try:
+                    client = make_client(Timestamp, '127.0.0.1', 9090)
+                    timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
+                    Wallet.objects.create(user=user, balance=initial_balance, currency=currency, created_at=timestamp)
+                except TException as e:
+                    return HttpResponse("An error occurred: {}".format(str(e)))
 
             # Specify the authentication backend when logging in the user
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')

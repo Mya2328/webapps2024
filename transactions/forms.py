@@ -1,9 +1,22 @@
+from sqlite3 import OperationalError
+from django.contrib import messages
+
 from django import forms
 from . import models
+import thriftpy
+from thriftpy.rpc import make_client
+timestamp_thrift = thriftpy.load(
+    'timestamp.thrift', module_name='timestamp_thrift')
+Timestamp = timestamp_thrift.TimestampService
+from datetime import datetime
+
+
+
 # from django.contrib.auth.models import User
 
 class CashTransferForm(forms.ModelForm):
     transaction_type = forms.CharField(widget=forms.HiddenInput(), initial='CR')
+
     class Meta:
         model = models.WalletTransaction
         fields = ["sender", "recipient", "amount", "transaction_type"]
@@ -21,6 +34,7 @@ class CashTransferForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['sender'] = forms.CharField(widget=forms.HiddenInput(), initial=self.initial.get('sender'))
 
+
 class FundRequestForm(forms.ModelForm):
     class Meta:
         model = models.FundRequest
@@ -35,8 +49,14 @@ class FundRequestForm(forms.ModelForm):
         super(FundRequestForm, self).__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        fund_request = super().save(commit=False)
+        fund_request = super(FundRequestForm, self).save(commit=False)
         fund_request.fund_requester = self.request.user
+        try:
+            client = make_client(Timestamp, '127.0.0.1', 9090)
+            timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
+            fund_request.created_at = timestamp
+        except OperationalError:
+            messages.info(self, f"Transfer operation is not possible now.")
         if commit:
             fund_request.save()
         return fund_request

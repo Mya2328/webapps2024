@@ -16,7 +16,7 @@
         <tbody>
         {% for request in pending_requests %}
             <tr>
-                <td>{{ request.created_at|date }}</td>
+                <td>{{ request.created_at }}</td>
                 <td>{{ request.amount }}</td>
                 <td>{{ request.currency }}</td>
                 <td>{{ request.fund_requester.username }} is requesting funds</td>

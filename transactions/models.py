@@ -1,18 +1,28 @@
+from datetime import datetime, timezone
+
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
+from django.http import HttpResponse
 import requests
 from decimal import Decimal
 from django.db import transaction
 from notifications.models import Notification
+import thriftpy
+from thriftpy.rpc import make_client
+from thriftpy.thrift import TException
+
+timestamp_thrift = thriftpy.load(
+    'timestamp.thrift', module_name='timestamp_thrift')
+Timestamp = timestamp_thrift.TimestampService
 
 
 # Create your models here.
 class Wallet(models.Model):
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="balance")
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=1000)
     currency = models.CharField(max_length=3, default='GBP')
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=False)
 
     def __str__(self):
         details = ''
@@ -32,6 +42,7 @@ class Wallet(models.Model):
             rate = Decimal(str(rate))
             points = Decimal(str(points))
             return round(points * rate, 2)
+
 
 class WalletTransaction(models.Model):
     TRANSACTION_TYPE_CHOICES = [
@@ -69,43 +80,52 @@ class FundRequest(models.Model):
 
     @transaction.atomic
     def approve(self):
-        self.status = 'APPROVED'
-        self.created_at = timezone.now()
-        self.approved = True
+        try:
+            client = make_client(Timestamp, '127.0.0.1', 9090)
+            # client.setTimezone('London')
+            timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
+            self.status = 'APPROVED'
+            self.approved_at = timestamp
+            self.approved = True
 
-        # Get the wallets of the requester and sender
-        requester_wallet = Wallet.objects.get(user=self.fund_requester)
-        sender_wallet = Wallet.objects.get(user=self.fund_sender)
+            # Get the wallets of the requester and sender
+            requester_wallet = Wallet.objects.get(user=self.fund_requester)
+            sender_wallet = Wallet.objects.get(user=self.fund_sender)
 
-        # Convert the requested amount to the sender's currency
-        converted_amount = requester_wallet.currency_converter(self.amount, self.currency, sender_wallet.currency)
+            # Convert the requested amount to the sender's currency
+            converted_amount = requester_wallet.currency_converter(self.amount, self.currency, sender_wallet.currency)
 
-        with transaction.atomic():
-            # Update the fund_sender wallet balance
-            sender_wallet.balance -= Decimal(converted_amount)
-            sender_wallet.save()
+            with transaction.atomic():
+                # Update the fund_sender wallet balance
+                sender_wallet.balance -= Decimal(converted_amount)
+                sender_wallet.save()
 
-            # Update the balances of the requester and sender
-            requester_wallet.balance += Decimal(self.amount)
-            requester_wallet.save()
+                # Update the balances of the requester and sender
+                requester_wallet.balance += Decimal(self.amount)
+                requester_wallet.save()
 
-            self.save()
+                self.save()
 
-            # Create a notification for the requester
-            recipient = self.fund_requester
-            alert = f"Your fund request for {self.amount} {self.currency} has been approved."
-            Notification.objects.create(recipient=recipient, message=alert)
+                # Create a notification for the requester
+                recipient = self.fund_requester
+                alert = f"Your fund request for {self.amount} {self.currency} has been approved."
+                Notification.objects.create(recipient=recipient, message=alert, timestamp=timestamp)
+        except TException as e:
+            return HttpResponse("An error occurred: {}".format(str(e)))
 
     def decline(self):
-        self.status = 'DECLINED'
-        self.created_at = timezone.now()
-        self.save()
+        try:
+            # client = make_client(Timestamp, '127.0.0.1', 9090)
+            # timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
+            self.status = 'DECLINED'
+            self.save()
+            # Create a notification for the requester
+            recipient = self.fund_requester
+            alert = f"Your fund request for {self.amount} {self.currency} has been declined."
+            Notification.objects.create(recipient=recipient, message=alert, timestamp=timestamp)
 
-        # Create a notification for the requester
-        recipient = self.fund_requester
-        alert = f"Your fund request for {self.amount} {self.currency} has been declined."
-        Notification.objects.create(recipient=recipient, message=alert)
+        except TException as e:
+            return HttpResponse("An error occurred: {}".format(str(e)))
 
-    class Meta:
-        ordering = ['-created_at']
-
+    # class Meta:
+    #     ordering = ['-created_at']

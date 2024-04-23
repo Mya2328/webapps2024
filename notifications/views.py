@@ -4,12 +4,22 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 
 from .models import Notification
+from django.shortcuts import render
+
 
 @login_required(login_url='login')
 def notification_list(request):
     notifications = list(Notification.objects.filter(recipient=request.user).order_by('-timestamp'))
     context = {'notifications': notifications}
     return render(request, 'notifications/notification_list.html', context)
+
+
+def notification_list_view(request):
+    # Fetch the count of new notifications from the database
+    new_notification_count = Notification.objects.filter(is_read=False).count()
+
+    # Pass the count to the template context
+    return render(request, 'your_template.html', {'new_notification_count': new_notification_count})
 
 
 @login_required(login_url='login')

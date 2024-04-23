@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'notifications.apps.NotificationsConfig',
-    'mathfilters',
     'social_django',
+    'mathfilters',
 ]
 
 MIDDLEWARE = [
@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/London'
 
 USE_I18N = True
 

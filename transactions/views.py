@@ -1,7 +1,11 @@
+from datetime import datetime
+
 from django.db import transaction, OperationalError
 from django.db.transaction import on_commit
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+
+from notifications.models import Notification
 from . import models
 from .forms import CashTransferForm
 from django.views.decorators.csrf import csrf_protect
@@ -16,7 +20,13 @@ from django.db.models import Q
 from .models import User, Wallet, WalletTransaction
 from .models import FundRequest
 from .forms import FundRequestForm
+import thriftpy
+from thriftpy.rpc import make_client
 
+
+timestamp_thrift = thriftpy.load(
+    'timestamp.thrift', module_name='timestamp_thrift')
+Timestamp = timestamp_thrift.TimestampService
 
 # Create your views here.
 # @transaction.atomic
@@ -26,7 +36,6 @@ def transfer(request):
     src_wallet = None  # Initialize the variable to None
     if request.method == 'POST':
         form = CashTransferForm(request.POST, initial={'sender': request.user.username})  # pass the sender value as initial
-
         if form.is_valid():
             src_username = form.cleaned_data["sender"]
             dst_username = form.cleaned_data["recipient"]
@@ -59,6 +68,9 @@ def transfer(request):
                 amount_to_transfer_recipient_currency = amount_to_transfer
 
             try:
+                client = make_client(Timestamp, '127.0.0.1', 9090)
+                timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
+                print("This is the time", timestamp)
                 src_transaction = None  # initialize the variable with a default value
                 with transaction.atomic():
                     src_wallet.balance -= amount_to_transfer
@@ -80,6 +92,7 @@ def transfer(request):
                         recipient=dst_username,
                         amount=amount_to_transfer,
                         transaction_type=transaction_type,
+                        date_created=timestamp,
                     )
 
                     # Create and save a new WalletTransaction object for the recipient
@@ -88,6 +101,7 @@ def transfer(request):
                         recipient=dst_username,
                         amount=amount_to_transfer_recipient_currency,
                         transaction_type=recipient_transaction_type,
+                        date_created=timestamp,
                     )
 
                 # Use the on_commit() function to inform users that all points have been transferred successfully
@@ -144,7 +158,7 @@ def transactionlog(request):
         reverse=True
     )
 
-    rate = {'USD': 1.24, 'EUR': 1.13, 'GBP': 1.00}
+    rate = {'USD': 1.24, 'EUR': 1.16, 'GBP': 1.00}
     context = {
         'transactions': transactions,
         'rate': rate
@@ -179,7 +193,7 @@ def fund_request_list(request):
     pending_requests = FundRequest.objects.filter(fund_sender=request.user, status='PENDING')
     return render(request, 'transactions/fund_request_list.html', {'pending_requests': pending_requests})
 
-def fund_request_action(request, pk):
+def fund_request_action(request, pk, fund_requester=None):
     request_obj = get_object_or_404(FundRequest, pk=pk)
 
     if request.method == 'POST':
@@ -187,9 +201,10 @@ def fund_request_action(request, pk):
 
         if action == 'approve':
             request_obj.approve()
+
             messages.success(request, 'The fund request has been approved.')
-            #notify = f"Your Fund request of{request_obj.amount}{request_obj.currency} was approved by{request_obj.fund_sender}"
-            #Notification.send_notification(fund_requester, notify)
+            notify = f"Your Fund request of{request_obj.amount}{request_obj.currency} was approved by{request_obj.fund_sender}"
+            Notification.send_notification(fund_requester, notify)
         elif action == 'decline':
             request_obj.decline()
             messages.error(request, 'The fund request has been declined.')
