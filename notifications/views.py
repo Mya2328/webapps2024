@@ -19,7 +19,7 @@ def notification_list_view(request):
     new_notification_count = Notification.objects.filter(is_read=False).count()
 
     # Pass the count to the template context
-    return render(request, 'your_template.html', {'new_notification_count': new_notification_count})
+    return render(request, 'base.html', {'new_notification_count': new_notification_count})
 
 
 @login_required(login_url='login')

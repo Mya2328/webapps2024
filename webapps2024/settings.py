@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'social_django',
     'mathfilters',
+    'adminapp.apps.AdminappConfig',
 ]
 
 MIDDLEWARE = [

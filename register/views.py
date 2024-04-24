@@ -85,8 +85,8 @@ def login_user(request):
             if user is not None:
                 login(request, user)
                 messages.info(request, f"You are now logged in as {username}.")
-                if user.is_staff:
-                    admin_url = reverse('admin:index')
+                if user.is_superuser:
+                    admin_url = reverse('adminapp:view_transactions')
                     return redirect(admin_url)
                 else:
                     # Get the current user

@@ -26,7 +26,8 @@ urlpatterns = [
     path('webapps2024/converter/', include('converter.urls')),
     path('webapps2024/notifications/', include(('notifications.urls', 'notifications'), namespace='notifications')),
     # path('', include('notifications.urls')),
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('favicon.ico', RedirectView.as_view(url='/static/admin/favicon.ico', permanent=True)),
+    path('admin/', include(('adminapp.urls', 'adminapp'), namespace='adminapp')),
 
 ]
