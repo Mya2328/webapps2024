@@ -3,9 +3,9 @@ from django.contrib import messages
 
 from django import forms
 from . import models
-import thriftpy
-from thriftpy.rpc import make_client
-timestamp_thrift = thriftpy.load(
+import thriftpy2
+from thriftpy2.rpc import make_client
+timestamp_thrift = thriftpy2.load(
     'timestamp.thrift', module_name='timestamp_thrift')
 Timestamp = timestamp_thrift.TimestampService
 from datetime import datetime

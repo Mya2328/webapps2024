@@ -20,11 +20,11 @@ from django.db.models import Q
 from .models import User, Wallet, WalletTransaction
 from .models import FundRequest
 from .forms import FundRequestForm
-import thriftpy
-from thriftpy.rpc import make_client
+import thriftpy2
+from thriftpy2.rpc import make_client
 
 
-timestamp_thrift = thriftpy.load(
+timestamp_thrift = thriftpy2.load(
     'timestamp.thrift', module_name='timestamp_thrift')
 Timestamp = timestamp_thrift.TimestampService
 
