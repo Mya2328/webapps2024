@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: onesocial
+Version: 1.0.1
+Summary: Клиент для OneSocial API
+Home-page: https://github.com/onesocial-dev/onesocial-python
+Author: Oleg Yamnikov
+Author-email: oyam@oxymeal.ru
+License: MIT
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Description-Content-Type: text/markdown
+Requires-Dist: requests (>=2.0.0)
+
+# onesocial
+
+Клиент для OneSocial API: https://onesocial.dev/
+
+## Установка
+
+```
+pip install onesocial
+```
+
+
