@@ -70,7 +70,8 @@ class FundRequest(models.Model):
     description = models.CharField(max_length=500)
     currency = models.CharField(max_length=3, default='GBP')
     approved = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
 
     def __str__(self):
@@ -80,9 +81,9 @@ class FundRequest(models.Model):
     def approve(self):
         try:
             client = make_client(Timestamp, '127.0.0.1', 9090)
-            # client.setTimezone('London')
             timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
             self.status = 'APPROVED'
+            self.approved_at = timestamp
             self.approved = True
 
             # Get the wallets of the requester and sender
@@ -105,6 +106,7 @@ class FundRequest(models.Model):
 
                 # Create a notification for the requester
                 recipient = self.fund_requester
+                timestamp = self.approved_at
                 alert = f"Your fund request for {self.amount} {self.currency} has been approved."
                 Notification.objects.create(recipient=recipient, message=alert, timestamp=timestamp)
         except TException as e:
@@ -118,11 +120,12 @@ class FundRequest(models.Model):
             self.save()
             # Create a notification for the requester
             recipient = self.fund_requester
+            timestamp = datetime.now()
             alert = f"Your fund request for {self.amount} {self.currency} has been declined."
             Notification.objects.create(recipient=recipient, message=alert, timestamp=timestamp)
 
         except TException as e:
             return HttpResponse("An error occurred: {}".format(str(e)))
 
-    # class Meta:
-    #     ordering = ['-created_at']
+    class Meta:
+        ordering = ['-created_at']

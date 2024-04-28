@@ -56,42 +56,40 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarText">
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a href="{% url 'dashboard' %}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'send&request' %}">Send & Request</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'transactionlog' %}">Activity</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'adminapp:view_register' %}">Admin Register</a>
-                    </li>
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'send&request' %}">Send & Request</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'transactionlog' %}">Activity</a>
+                </li>
+                {% if user.is_superuser %}
+                <li class="nav-item">
+                    <a href="{% url 'new_admin_registration' %}">Admin Register</a>
+                </li>
+                {% endif %}
             </ul>
             <ul>
-
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="{% url 'notifications:notification_list' %}" class="nav-link setting-icon position-relative">
-                                <i class="fa-solid fa-bell"></i>
-                                <span class="notification-badge">{{ new_notification_count }}</span>
-                            </a>
-                        </li>
-
-
-                        <li class="nav-item"><a>Welcome, {{ user.username }}</a></li>
-                        <li class="nav-item">
-                            <a href="{% url 'logout' %}">Logout</a>
-                        </li>
-                    </ul>
-
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="{% url 'notifications:notification_list' %}" class="nav-link setting-icon position-relative">
+                            <i class="fa-solid fa-bell"></i>
+                            <span class="notification-badge">{{ new_notification_count }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a>Welcome, {{ user.username }}</a></li>
+                    <li class="nav-item">
+                        <a href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </ul>
                 {% else %}
-
-
+                <!-- Content for non-authenticated users goes here -->
                 {% endif %}
             </ul>
         </div>
+
     </div>
 </nav>
 

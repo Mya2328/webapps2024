@@ -17,7 +17,7 @@ class Notification(models.Model):
     objects = None
     recipient = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
-    timestamp = models.DateTimeField(auto_now_add=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
     def __str__(self):
@@ -25,7 +25,6 @@ class Notification(models.Model):
 
     @staticmethod
     def send_notification(recipient, alert):
-        print("THis is receipent", recipient)
         try:
             client = make_client(Timestamp, '127.0.0.1', 9090)
             timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
