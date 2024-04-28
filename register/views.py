@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from register.forms import RegisterForm
+from register.forms import RegisterForm, AdminRegistrationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
@@ -71,7 +71,7 @@ def register_user(request):
             messages.error(request, "Unsuccessful registration. Invalid information.")
     else:
         form = RegisterForm()
-    return render(request, "register/register.html", {"register_user": form})
+    return render(request, "register/newadminregister.html", {"form": form})
 
 
 @csrf_protect
@@ -86,8 +86,8 @@ def login_user(request):
                 login(request, user)
                 messages.info(request, f"You are now logged in as {username}.")
                 if user.is_superuser:
-                    admin_url = reverse('adminapp:view_transactions')
-                    return redirect(admin_url)
+                    #admin_url = reverse('adminapp:view_accounts')
+                    return redirect('adminapp:view_accounts')
                 else:
                     # Get the current user
                     current_user = request.user
@@ -151,3 +151,25 @@ def password_reset_confirm(request):
     return redirect("login")
 
 
+def new_admin_registration(request):
+    if not request.user.is_superuser:
+        # If the current user is not a superuser, redirect to a permission denied page
+        return render(request, 'permission_denied.html')  # Create a permission denied template
+
+    if request.method == "POST":
+        form = AdminRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            # Check additional admin-specific conditions or perform additional tasks here
+
+            user.save()
+
+            messages.success(request, "Admin registration successful.")
+            return redirect("adminapp:view_accounts")  # Redirect to the admin dashboard or any other desired page
+        else:
+            messages.error(request, "Unsuccessful admin registration. Invalid information.")
+    else:
+        form = AdminRegistrationForm()
+
+    return render(request, "register/newadminregister.html", {"form": form})

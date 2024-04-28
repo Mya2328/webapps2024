@@ -21,7 +21,9 @@ Login to an Account
                 </form>
 
                 <div class="card-body">
-                    <a class="link-opacity-100 link mb-2" href="{% url 'password_reset' %}">Forgot password?</a>
+                    <a class="link-opacity-100 link mb-2" style="color: black;"href="{% url 'password_reset' %}">Forgot password?</a>
+                    <p class="link" style="color: black;">Don't have an account?</p>
+                    <a class="link-opacity-100 link" style="color: black;" href="{% url 'register' %}">Register</a>
                 </div>
             </div>
         </div>
@@ -35,17 +37,7 @@ Login to an Account
             />
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card mb-3">
-            <div class="card-body">
-                <h1 class="header">Register</h1>
-                <div style="display: flex; justify-content: center;">
-                    <p class="link" style="color: white;">Don't have an account?</p>
-                    <a class="link-opacity-100 link" href="{% url 'register' %}">Register</a>
-                </div>
-            </div>
-        </div>
-    </div>
+
 </div>
 {% endblock %}
 

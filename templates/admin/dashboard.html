@@ -1,10 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin page</title>
-</head>
-<body>
+{% extends 'main/base.html' %}
+{% load mathfilters %}
 
-</body>
-</html>
+{% block content %}
+<h1>Transaction History</h1>
+<h5>Source Account</h5>
+<p>Username: {{ user.username }}</p>
+<table class="table table-bordered table-striped table-hover table-grey">
+    <thead>
+    <tr>
+        <th>Counterparty</th>
+        <th>Date</th>
+        <th>Amount</th>
+        <th class="d-none">Transaction Type</th>
+        <th>Direction</th>
+        <th>Counterparty</th>
+
+
+    </tr>
+    </thead>
+    <tbody>
+    {% if user.is_authenticated %}
+    {% for transactionsview in transactionsviews %}
+    <tr>
+        <td>{{ transactionsview.recipient|default:"-" }}</td>
+        <td>{{ transactionsview.date_created }}</td>
+        <td>{{ transactionsview.amount|floatformat:2 }} {{ user.balance.currency }}</td>
+        <td>{{ transactionsview.transaction_type }}</td>
+
+        <td>{{ transactionsview.sender|default:"-" }}</td>
+
+        <td>{{ transactionsview.fund_requester|default:"-" }}</td>
+        <td>{{ transactionsview.created_at|date:"F j, Y, g:i a" }}</td>
+        <td>Fund Request</td>
+
+    </tr>
+    {% endfor %}
+    {% endif %}
+    <tr>
+        <td colspan="4">&nbsp;</td> <!-- empty cells to span the main table columns -->
+        <td colspan="4">
+            <table class="table table-bordered table-striped table-hover table-dark">
+                <tr>
+                    <td><strong>Current Balance:</strong></td>
+                    <td><strong>{{ user.balance.balance }} {{ user.balance.currency }}</strong></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+
+</table>
+{% endblock %}

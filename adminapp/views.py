@@ -2,19 +2,24 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+
+from transactions.models import WalletTransaction
 # Import your models
 from .models import Transaction, Account
 
 # Import User model if not already imported
 from django.contrib.auth.models import User
 
+
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('user', 'amount', 'timestamp')
     # Customize any other settings or behaviors here
 
+
 class AccountAdmin(admin.ModelAdmin):
     list_display = ('user', 'balance')
     # Customize any other settings or behaviors here
+
 
 # Register your models with their respective ModelAdmin classes
 # admin.site.register(Transaction, TransactionAdmin)
@@ -43,8 +48,13 @@ def add_admin(request):
     return render(request, 'admin/add_admin.html')
     # return render(request, 'admin/add_admin.html')  # Placeholder until you implement the form
 
+
 # Optionally, you can define other views related to admin operations here
-def view_accounts():
-    return None
+
+def view_register(request):
+    return render(request, 'admin/newadminregister.html')
 
 
+def view_accounts(request):
+    transactionsviews = WalletTransaction.objects.all()
+    return render(request, 'admin/dashboard.html', {'transactionsviews': transactionsviews})

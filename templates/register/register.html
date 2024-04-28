@@ -19,7 +19,7 @@
                             <h1 class="header">Register</h1>
                             <form method="post" class="form-group">
                                 {% csrf_token %}
-                                {{ register_user|crispy }}
+                                {{ form|crispy }}
                                 <button class="btn btn-primary w-100 mt-1" type="submit">Register</button>
                             </form>
                                     <a class="link-opacity-100 link" href="{% url 'login' %} >Already register?</a>
