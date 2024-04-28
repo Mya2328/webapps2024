@@ -71,7 +71,6 @@ class FundRequest(models.Model):
     currency = models.CharField(max_length=3, default='GBP')
     approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=False)
-    approved_at = models.DateTimeField(auto_now_add=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
 
     def __str__(self):
@@ -84,7 +83,6 @@ class FundRequest(models.Model):
             # client.setTimezone('London')
             timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
             self.status = 'APPROVED'
-            self.approved_at = timestamp
             self.approved = True
 
             # Get the wallets of the requester and sender
@@ -114,8 +112,8 @@ class FundRequest(models.Model):
 
     def decline(self):
         try:
-            # client = make_client(Timestamp, '127.0.0.1', 9090)
-            # timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
+            client = make_client(Timestamp, '127.0.0.1', 9090)
+            timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
             self.status = 'DECLINED'
             self.save()
             # Create a notification for the requester
