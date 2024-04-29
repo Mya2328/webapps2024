@@ -193,15 +193,13 @@ def fund_request_list(request):
     pending_requests = FundRequest.objects.filter(fund_sender=request.user, status='PENDING')
     return render(request, 'transactions/fund_request_list.html', {'pending_requests': pending_requests})
 
-def fund_request_action(request, pk, fund_requester=None):
+def fund_request_action(request, pk):
     request_obj = get_object_or_404(FundRequest, pk=pk)
-
+    fund_requester = request_obj.fund_requester
     if request.method == 'POST':
         action = request.POST.get('action')
-
         if action == 'approve':
             request_obj.approve()
-
             messages.success(request, 'The fund request has been approved.')
             notify = f"Your Fund request of{request_obj.amount}{request_obj.currency} was approved by{request_obj.fund_sender}"
             Notification.send_notification(fund_requester, notify)
