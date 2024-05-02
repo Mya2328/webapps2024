@@ -4,30 +4,28 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="card mb-3" style="max-width: 100%;">
-        <div class="row g-0">
-            <div class="col-md-4">
-                <img
-                        alt="register-image"
-                        class="register-image-section"
-                        src="{% static 'register_image.webp' %}"
-                />
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <img
+                    alt="register-image"
+                    class="register-image-section"
+                    src="{% static 'register_image.webp' %}"
+            />
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                    <h1 class="header">Register</h1>
+                    <form method="post" class="form-group">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button class="btn btn-primary w-100 mt-1" type="submit">Register</button>
+                    </form>
+                    <a class="link-opacity-100 link" href="{% url 'login' %}" >Already register?</a>
             </div>
         </div>
     </div>
-            <div class="col-md-4">
-                <div class="card-body">
-                        <div class="form">
-                            <h1 class="header">Register</h1>
-                                <form method="post" class="form-group">
-                                    {% csrf_token %}
-                                    {{ form|crispy }}
-                                    <button class="btn btn-primary w-100 mt-1" type="submit">Register</button>
-                                </form>
-                                    <a class="link-opacity-100 link" href="{% url 'login' %} >Already register?</a>
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
 {% endblock %}
