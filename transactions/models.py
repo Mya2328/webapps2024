@@ -34,8 +34,9 @@ class Wallet(models.Model):
 
     @staticmethod
     def currency_converter(points, base_currency, quote_currency):
-        url = "https://api.exchangerate-api.com/v4/latest/{}".format(base_currency)
-        response = requests.get(url)
+        print("These are data", points, base_currency, quote_currency)
+        url = f"http://127.0.0.1:8000/webapps2024/conversion/{base_currency}/{quote_currency}/{points}/"
+        response = requests.get(url, verify="False")
         raw_data = response.json()
         rates = raw_data["rates"]
         rate = rates.get(quote_currency)
