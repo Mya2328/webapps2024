@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'payapp.apps.PayappConfig',
     'register.apps.RegisterConfig',
     'transactions.apps.TransactionsConfig',
-    'converter.apps.CurrencyapiConfig',
+    'conversion',
     'crispy_forms',
     'crispy_bootstrap5',
     'django_extensions',

@@ -13,15 +13,17 @@
                         src="{% static 'register_image.webp' %}"
                 />
             </div>
+        </div>
+    </div>
             <div class="col-md-4">
                 <div class="card-body">
                         <div class="form">
                             <h1 class="header">Register</h1>
-                            <form method="post" class="form-group">
-                                {% csrf_token %}
-                                {{ form|crispy }}
-                                <button class="btn btn-primary w-100 mt-1" type="submit">Register</button>
-                            </form>
+                                <form method="post" class="form-group">
+                                    {% csrf_token %}
+                                    {{ form|crispy }}
+                                    <button class="btn btn-primary w-100 mt-1" type="submit">Register</button>
+                                </form>
                                     <a class="link-opacity-100 link" href="{% url 'login' %} >Already register?</a>
                         </div>
                 </div>

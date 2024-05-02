@@ -6,6 +6,9 @@ from django.http import HttpResponse
 import requests
 from decimal import Decimal
 from django.db import transaction
+from requests import request
+
+from conversion.views import CurrencyConversionAPIView
 from notifications.models import Notification
 import thriftpy2
 from thriftpy2.rpc import make_client
@@ -18,7 +21,6 @@ Timestamp = timestamp_thrift.TimestampService
 
 # Create your models here.
 class Wallet(models.Model):
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="balance")
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=1000)
     currency = models.CharField(max_length=3, default='GBP')
@@ -91,22 +93,28 @@ class FundRequest(models.Model):
             sender_wallet = Wallet.objects.get(user=self.fund_sender)
 
             # Convert the requested amount to the sender's currency
-            converted_amount = requester_wallet.currency_converter(self.amount, self.currency, sender_wallet.currency)
+            converted_amount = CurrencyConversionAPIView().get(request, requester_wallet.currency, sender_wallet.currency,
+                                                               self.amount)
+            if isinstance(converted_amount, dict) and 'converted_amount' in converted_amount:
+                converted_amount = converted_amount['converted_amount']
+            else:
+                # Handle the case when the conversion fails
+                return HttpResponse("Currency conversion failed.")
 
+            # Update balances within a transaction
             with transaction.atomic():
-                # Update the fund_sender wallet balance
+                # Update the sender's wallet balance
                 sender_wallet.balance -= Decimal(converted_amount)
                 sender_wallet.save()
-
-                # Update the balances of the requester and sender
+                print(converted_amount)
+                # Update the requester's wallet balance
                 requester_wallet.balance += Decimal(self.amount)
                 requester_wallet.save()
-
+                print(self.amount)
                 self.save()
 
                 # Create a notification for the requester
                 recipient = self.fund_requester
-                timestamp = self.approved_at
                 alert = f"Your fund request for {self.amount} {self.currency} has been approved."
                 Notification.objects.create(recipient=recipient, message=alert, timestamp=timestamp)
         except TException as e:

@@ -11,8 +11,9 @@
         <th>Counterparty</th>
         <th>Date</th>
         <th>Amount</th>
-        <th class="d-none">Transaction Type</th>
+        <th>Transaction Type</th>
         <th>Direction</th>
+
 
     </tr>
     </thead>
@@ -24,25 +25,25 @@
         <td>{{ transaction.recipient|default:"-" }}</td>
         <td>{{ transaction.date_created }}</td>
         <td>{{ transaction.amount|floatformat:2 }} {{ user.balance.currency }}</td>
-        <td class="d-none">{% if transaction.transaction_type == 'DR' %}Debit{% else %}Credit{% endif %}</td>
+        <td>{% if transaction.transaction_type == 'DR' %}Debit{% else %}Credit{% endif %}</td>
         <td>Debit</td>
         {% elif transaction.recipient == user.username %}
         <td>{{ transaction.sender|default:"-" }}</td>
         <td>{{ transaction.date_created }}</td>
         <td>{{ transaction.amount|floatformat:2 }} {{ user.balance.currency }}</td>
-        <td class="d-none">{% if transaction.transaction_type == 'DR' %}Debit{% else %}Credit{% endif %}</td>
+        <td>{% if transaction.transaction_type == 'DR' %}Debit{% else %}Credit{% endif %}</td>
         <td>Credit</td>
         {% elif transaction.fund_sender == user %}
-        <td>{{ transaction.fund_requester|default:"-" }}</td>
+        <td>{{ transaction.fund_requester.username|default:"-" }}</td>
         <td>{{ transaction.created_at|date:"F j, Y, g:i a" }}</td>
         <td>{{ transaction.amount|floatformat:2 }} {{ user.balance.currency }}</td>
-        <td class="d-none">Fund Request</td>
+        <td>Fund Request</td>
         <td>Debit - FR</td>
         {% elif transaction.fund_requester == user %}
         <td>{{ transaction.fund_sender.username|default:"-" }}</td>
         <td>{{ transaction.created_at|date:"F j, Y, g:i a" }}</td>
         <td>{{ transaction.amount|floatformat:2 }} {{ user.balance.currency }}</td>
-        <td class="d-none">Fund Request</td>
+        <td>Fund Request</td>
         <td>Credit - FR</td>
 
         {% endif %}

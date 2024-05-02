@@ -1,20 +1,17 @@
 from datetime import datetime
 
 from django.db import transaction, OperationalError
-from django.db.transaction import on_commit
-from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
+from conversion.views import CurrencyConversionAPIView
 from notifications.models import Notification
-from . import models
-from .forms import CashTransferForm
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.conf import settings
-from decimal import Decimal
+from django.db import transaction
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .forms import CashTransferForm
 from django.db.models import Q
 
 from .models import User, Wallet, WalletTransaction
@@ -23,29 +20,27 @@ from .forms import FundRequestForm
 import thriftpy2
 from thriftpy2.rpc import make_client
 
-
 timestamp_thrift = thriftpy2.load(
     'timestamp.thrift', module_name='timestamp_thrift')
 Timestamp = timestamp_thrift.TimestampService
 
+
 # Create your views here.
-# @transaction.atomic
 @login_required(login_url='login')
 @csrf_protect
 def transfer(request):
     src_wallet = None  # Initialize the variable to None
     if request.method == 'POST':
-        form = CashTransferForm(request.POST, initial={'sender': request.user.username})  # pass the sender value as initial
+        form = CashTransferForm(request.POST,
+                                initial={'sender': request.user.username})  # pass the sender value as initial
         if form.is_valid():
             src_username = form.cleaned_data["sender"]
             dst_username = form.cleaned_data["recipient"]
             amount_to_transfer = form.cleaned_data["amount"]
 
             # We use the select_for_update inside a transaction block to fetch the queryset to lock it until the transaction is completed.
-            src_wallet = models.Wallet.objects.select_related().get(user__username=src_username)
-            dst_wallet = models.Wallet.objects.select_related().get(user__username=dst_username)
-
-
+            src_wallet = Wallet.objects.select_related().get(user__username=src_username)
+            dst_wallet = Wallet.objects.select_related().get(user__username=dst_username)
 
             if not request.user.is_superuser and request.user.id != src_wallet.user.id:
                 messages.error(request, "You can only transfer funds from your own account.")
@@ -55,29 +50,32 @@ def transfer(request):
                 messages.error(request, "You can only transfer funds to other account.")
                 return redirect("transfer")
 
-            # check if the sender has enough funds
             if src_wallet.balance < amount_to_transfer:
                 messages.error(request, "Insufficient funds.")
                 return redirect("transfer")
 
-            # Calculate exchange rate and transfer amount in destination currency if wallets have different currencies
             if src_wallet.currency != dst_wallet.currency:
-                rate = models.Wallet.currency_converter(1, src_wallet.currency, dst_wallet.currency)
-                amount_to_transfer_recipient_currency = Decimal(str(rate)) * amount_to_transfer
+                converted_amount = CurrencyConversionAPIView().get(request, src_wallet.currency, dst_wallet.currency,
+                                                                   amount_to_transfer)
+                if isinstance(converted_amount, dict) and 'converted_amount' in converted_amount:
+                    converted_amount = converted_amount['converted_amount']
+                else:
+                    # Handle the case when the conversion fails
+                    messages.error(request, "Currency conversion failed.")
+                    return redirect("transfer")
             else:
-                amount_to_transfer_recipient_currency = amount_to_transfer
+                converted_amount = amount_to_transfer
 
             try:
-                client = make_client(Timestamp, '127.0.0.1', 9090)
+                client = make_client(Timestamp, '127.0.0.1', 9090)  # Change settings.Timestamp to actual import path
                 timestamp = datetime.fromtimestamp(int(str(client.getCurrentTimestamp())))
-                print("This is the time", timestamp)
-                src_transaction = None  # initialize the variable with a default value
                 with transaction.atomic():
                     src_wallet.balance -= amount_to_transfer
                     src_wallet.save()
-
-                    dst_wallet.balance += amount_to_transfer_recipient_currency
+                    print(amount_to_transfer)
+                    dst_wallet.balance += converted_amount
                     dst_wallet.save()
+                    print(converted_amount)
 
                     if src_username == request.user.username:
                         transaction_type = 'DR'
@@ -99,40 +97,36 @@ def transfer(request):
                     dst_transaction = WalletTransaction.objects.create(
                         sender=src_username,
                         recipient=dst_username,
-                        amount=amount_to_transfer_recipient_currency,
+                        amount=converted_amount,
                         transaction_type=recipient_transaction_type,
                         date_created=timestamp,
                     )
 
-                # Use the on_commit() function to inform users that all points have been transferred successfully
-                @on_commit
+                @transaction.on_commit
                 def send_transfer_message():
-                    messages.success(request, f"{amount_to_transfer} {src_wallet.currency} have been transferred from {src_username} to {dst_username} .")
+                    messages.success(request,
+                                     f"{amount_to_transfer} {src_wallet.currency} have been transferred from {src_username} to {dst_username}.")
 
             except OperationalError:
                 messages.info(request, f"Transfer operation is not possible now.")
 
-        # Fetch all transactions for the source wallet
-        src_transactions = list(WalletTransaction.objects.filter(sender=request.user.username).order_by("-date_created"))
+        src_transactions = list(
+            WalletTransaction.objects.filter(sender=request.user.username).order_by("-date_created"))
+        dst_transactions = list(
+            WalletTransaction.objects.filter(recipient=request.user.username).order_by("-date_created"))
 
-        # Fetch all transactions for the destination wallet
-        dst_transactions = list(WalletTransaction.objects.filter(recipient=request.user.username).order_by("-date_created"))
-
-        # Render a template showing transaction details
         context = {
             "src_wallet": src_wallet,
             "src_transactions": src_transactions,
-            "src_transaction_amount": src_transaction.amount,
-            "src_transaction_date": src_transaction.date_created,
-            "src_transaction_type": src_transaction.transaction_type,
-            "src_sender_balance": src_wallet.balance,
+            "src_transaction_amount": src_transaction.amount if 'src_transaction' in locals() else None,
+            "src_transaction_date": src_transaction.date_created if 'src_transaction' in locals() else None,
+            "src_transaction_type": src_transaction.transaction_type if 'src_transaction' in locals() else None,
+            "src_sender_balance": src_wallet.balance if src_wallet else None,
             "dst_transactions": dst_transactions,
             "dst_username": dst_username,
         }
-        return render(request, "transactions/account_details.html", context )
+        return render(request, "transactions/account_details.html", context)
 
-
-    # Set the sender field of the form to the username of the logged-in user
     else:
         form = CashTransferForm(initial={'sender': request.user.username})
     return render(request, "transactions/transfer.html", {"form": form})
@@ -140,7 +134,9 @@ def transfer(request):
 @login_required(login_url='login')
 def transactionlog(request):
     # Fetch all transactions for the source wallet
-    src_transactions = list(WalletTransaction.objects.filter(sender=request.user.username, recipient__isnull=False).order_by("-date_created"))
+    src_transactions = list(
+        WalletTransaction.objects.filter(sender=request.user.username, recipient__isnull=False).order_by(
+            "-date_created"))
 
     # Fetch all transactions for the destination wallet
     dst_transactions = list(WalletTransaction.objects.filter(recipient=request.user.username).order_by("-date_created"))
@@ -149,7 +145,8 @@ def transactionlog(request):
     fund_requests_sent = list(FundRequest.objects.filter(fund_sender=request.user).order_by("-created_at"))
 
     # Fetch all fund requests received by the user excluding ones they sent
-    fund_requests_received = list(FundRequest.objects.filter(fund_requester=request.user).exclude(Q(fund_sender=request.user) | Q(fund_sender=None)).order_by("-created_at"))
+    fund_requests_received = list(FundRequest.objects.filter(fund_requester=request.user).exclude(
+        Q(fund_sender=request.user) | Q(fund_sender=None)).order_by("-created_at"))
 
     # Merge transactions and fund requests into a single list and sort them by date_created or created_at in descending order
     transactions = sorted(
@@ -165,8 +162,10 @@ def transactionlog(request):
     }
     return render(request, 'transactions/transactionlog.html', context)
 
+
 def send_and_request(request):
     return render(request, "payapp/send&request.html")
+
 
 @login_required(login_url='login')
 def requestmoney(request):
@@ -193,6 +192,7 @@ def fund_request_list(request):
     pending_requests = FundRequest.objects.filter(fund_sender=request.user, status='PENDING')
     return render(request, 'transactions/fund_request_list.html', {'pending_requests': pending_requests})
 
+
 def fund_request_action(request, pk):
     request_obj = get_object_or_404(FundRequest, pk=pk)
     fund_requester = request_obj.fund_requester
@@ -209,4 +209,3 @@ def fund_request_action(request, pk):
         return redirect('fund_request_list')
 
     return render(request, 'transactions/fund_request_action.html', {'request': request_obj})
-
