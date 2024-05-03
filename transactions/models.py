@@ -113,7 +113,7 @@ class FundRequest(models.Model):
             sender_wallet = Wallet.objects.get(user=self.fund_sender)
 
             # Convert the requested amount to the sender's currency
-            converted_amount = CurrencyConversionAPIView().get(request, requester_wallet.currency, sender_wallet.currency,
+            converted_amount = CurrencyConversionAPIView.get(request, requester_wallet.currency, sender_wallet.currency,
                                                                self.amount)
             if isinstance(converted_amount, dict) and 'converted_amount' in converted_amount:
                 converted_amount = converted_amount['converted_amount']
