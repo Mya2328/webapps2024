@@ -35,16 +35,35 @@ class Wallet(models.Model):
     @staticmethod
     def currency_converter(points, base_currency, quote_currency):
         print("These are data", points, base_currency, quote_currency)
-        url = f"http://127.0.0.1:8000/webapps2024/conversion/{base_currency}/{quote_currency}/{points}/"
-        response = requests.get(url, verify="False")
-        raw_data = response.json()
-        rates = raw_data["rates"]
-        rate = rates.get(quote_currency)
-        if rate:
-            rate = Decimal(str(rate))
-            points = Decimal(str(points))
-            return round(points * rate, 2)
 
+        # Construct the URL for the API endpoint
+        url = f"http://127.0.0.1:8000/webapps2024/conversion/{base_currency}/{quote_currency}/{points}/"
+
+        try:
+            # Make a GET request to the API
+            response = requests.get(url)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                # Parse the JSON response
+                raw_data = response.json()
+
+                # Extract the exchange rate from the response
+                exchange_rate = raw_data.get("converted_amount")
+
+                # Calculate the converted amount
+                if exchange_rate is not None:
+                    converted_amount = Decimal(str(exchange_rate))
+                    return round(converted_amount, 2)
+                else:
+                    print("Error: Invalid response format")
+                    return None
+            else:
+                print(f"Error: API request failed with status code {response.status_code}")
+                return None
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
 
 class WalletTransaction(models.Model):
     TRANSACTION_TYPE_CHOICES = [
