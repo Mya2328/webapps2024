@@ -37,7 +37,7 @@ class Wallet(models.Model):
         print("These are data", points, base_currency, quote_currency)
 
         # Construct the URL for the API endpoint
-        url = f"https://127.0.0.1:8000/webapps2024/conversion/{base_currency}/{quote_currency}/{points}/"
+        url = f"https://127.0.0.1/webapps2024/conversion/{base_currency}/{quote_currency}/{points}/"
 
         try:
             # Make a GET request to the API
